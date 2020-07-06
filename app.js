@@ -2,6 +2,7 @@ const express = require('express')
 const session = require('express-session')
 const MongoStore = require('connect-mongo')(session)
 const router = require('./router')
+const flash = require("connect-flash")
 const app = express()
 
 let sessionOptions = session({
@@ -19,6 +20,7 @@ app.set('views','views')
 app.set('view engine', 'ejs')
 
 app.use(sessionOptions)
+app.use(flash())
 app.use('/', router)
 
 //making our express app to be used everywhere (models, controllers, and all other files)

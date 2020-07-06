@@ -22,15 +22,30 @@ let User = function(data) {
         }
     }
 
-    User.prototype.validate = function(){
+    User.prototype.validate = function() {
+        return new Promise(async (resolve, reject) => {
        
-        if (this.data.username == '') {this.errors.push("Enter your username")}
-        if(this.data.username!= "" && !validator.isAlphanumeric(this.data.username)) {this.errors.push("Username can only contain valid letters and numbers")}
-        if (!validator.isEmail(this.data.email)){this.errors.push("Provide a valid email")}
-        if (this.data.password== ''){this.errors.push("Provide your password")}
-        if (this.data.password.length >0 && this.data.password.length < 5) {this.errors.push("password to be mininum 5 letters")}
-        if (this.data.username.length >0 && this.data.username.length < 4) {this.errors.push("username to be minimum 4 letters")} 
-
+            if (this.data.username == '') {this.errors.push("Enter your username")}
+            if(this.data.username!= "" && !validator.isAlphanumeric(this.data.username)) {this.errors.push("Username can only contain valid letters and numbers")}
+            if (!validator.isEmail(this.data.email)){this.errors.push("Provide a valid email")}
+            if (this.data.password== ''){this.errors.push("Provide your password")}
+            if (this.data.password.length >0 && this.data.password.length < 5) {this.errors.push("password to be mininum 5 letters")}
+            if (this.data.username.length >0 && this.data.username.length < 4) {this.errors.push("username to be minimum 4 letters")} 
+    
+            // only if username is valid check if it's already taken in db
+            if(this.data.username.length > 2 && this.data.username.length < 31 && validator.isAlphanumeric(this.data.username)) {
+                let usernameExists = await usersCollection.findOne({username: this.data.username})
+                if(usernameExists) { this.errors.push("That username is already taken")} 
+            }
+    
+            // only if email is valid check if it's already taken in db
+            if(validator.isEmail(this.data.email)) {
+                let emailExists = await usersCollection.findOne({email: this.data.email})
+                if(emailExists) { this.errors.push("That email is already taken")} 
+            }
+            resolve()
+    
+        })
     }
 
     User.prototype.login = function(){
@@ -48,18 +63,28 @@ let User = function(data) {
         })
     }
 
-    User.prototype.register = function(){
-        //step 1: validate user data
-        //step 2: only if there are no errors then save the user data into a DB
-        this.cleanUp()
-        this.validate()
+    User.prototype.register = async function() {
+        
+        return new Promise(async  (resolve, reject) =>{
+            this.cleanUp()
+            await this.validate()
     
-         if(!this.errors.length){
+            if(!this.errors.length){
             //hash user password
             let salt = bcrypt.genSaltSync(10)
             this.data.password = bcrypt.hashSync(this.data.password, salt) 
-            usersCollection.insertOne(this.data)
-         }
+            await usersCollection.insertOne(this.data)
+            resolve()
+            } else {
+                reject(this.errors)
+            }
+
+        })
+
+        //step 1: validate user data
+        //step 2: only if there are no errors then save the user data into a DB
+        
+        
     }
     
     module.exports = User
