@@ -4,6 +4,8 @@ const md5 = require('md5')
 const app = require("../app")
 const usersCollection = require('../db').db().collection("users")
 
+
+
 let User = function(data) {
     this.data = data 
     this.errors = []   
@@ -19,7 +21,8 @@ let User = function(data) {
         this.data = {
             username: this.data.username.trim().toLowerCase(),
             email: this.data.email.trim().toLowerCase(),
-            password: this.data.password
+            password: this.data.password,
+            added_date: new Date()
         }
     }
 
