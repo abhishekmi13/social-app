@@ -21,6 +21,12 @@ app.set('view engine', 'ejs')
 
 app.use(sessionOptions)
 app.use(flash())
+
+app.use(function(req, res, next){ 
+    res.locals.user = req.session.user
+    next()    
+})
+
 app.use('/', router)
 
 //making our express app to be used everywhere (models, controllers, and all other files)
