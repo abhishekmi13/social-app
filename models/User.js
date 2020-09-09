@@ -99,5 +99,30 @@ let User = function(data, getAvatar) {
     User.prototype.getAvatar = function (){
         this.avatar = `http://gravatar.com/avatar/${md5(this.data.email)}?s=128`
     }
+
+    User.findByUsername = function(username) {
+        return new Promise(function(resolve, reject){
+            if( typeof(username)!= 'string'){
+                reject()
+                return
+            }
+            usersCollection.findOne({username: username}).then(function(userDoc) {
+              if(userDoc) {
+                userDoc = new User(userDoc, true)
+                userDoc = {
+                    _id: userDoc.data._id,
+                    username: userDoc.data.username,
+                    avatar: userDoc.avatar
+                }
+
+                resolve(userDoc)
+              } else{
+                  reject()
+              }
+            }).catch(function() {
+                reject()
+            })
+        })
+    }
     
     module.exports = User
