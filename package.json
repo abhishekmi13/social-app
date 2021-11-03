@@ -20,6 +20,6 @@
     "express-session": "^1.17.1",
     "md5": "^2.2.1",
     "mongodb": "^3.6.0",
-    "validator": "^13.1.1"
+    "validator": "^13.7.0"
   }
 }
